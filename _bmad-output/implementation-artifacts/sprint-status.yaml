@@ -1,0 +1,82 @@
+# generated: 2026-05-11T00:00:00.000Z
+# last_updated: 2026-05-11T00:00:00.000Z
+# project: french
+# project_key: NOKEY
+# tracking_system: file-system
+# story_location: _bmad-output/implementation-artifacts
+
+# STATUS DEFINITIONS:
+# ==================
+# Epic Status:
+#   - backlog: Epic not yet started
+#   - in-progress: Epic actively being worked on
+#   - done: All stories in epic completed
+#
+# Epic Status Transitions:
+#   - backlog → in-progress: Automatically when first story is created (via create-story)
+#   - in-progress → done: Manually when all stories reach 'done' status
+#
+# Story Status:
+#   - backlog: Story only exists in epic file
+#   - ready-for-dev: Story file created in stories folder
+#   - in-progress: Developer actively working on implementation
+#   - review: Ready for code review (via Dev's code-review workflow)
+#   - done: Story completed
+#
+# Retrospective Status:
+#   - optional: Can be completed but not required
+#   - done: Retrospective has been completed
+#
+# WORKFLOW NOTES:
+# ===============
+# - Epic transitions to 'in-progress' automatically when first story is created
+# - Stories can be worked in parallel if team capacity allows
+# - Developer typically creates next story after previous one is 'done' to incorporate learnings
+# - Dev moves story to 'review', then runs code-review (fresh context, different LLM recommended)
+
+generated: 2026-05-11T00:00:00.000Z
+last_updated: 2026-05-11T15:30:00.000Z
+project: french
+project_key: NOKEY
+tracking_system: file-system
+story_location: _bmad-output/implementation-artifacts
+
+development_status:
+  epic-1: in-progress
+  1-1-initialiser-le-monorepo-la-bdd-et-les-fondations: in-progress
+
+  1-2-ecran-splash-onboarding-3-slides: backlog
+  1-3-inscription-par-telephone-otp-sms: backlog
+  1-4-upload-kyc-cin-permis: backlog
+  1-5-page-regles-du-domino-protection-des-donnees: backlog
+  epic-1-retrospective: optional
+  epic-2: backlog
+  2-1-depot-mvola-vers-wallet-higame: backlog
+  2-2-consultation-solde-wallet-en-temps-reel: backlog
+  2-3-retrait-des-gains-vers-mvola: backlog
+  2-4-parametrage-des-limites-de-depot: backlog
+  epic-2-retrospective: optional
+  epic-3: backlog
+  3-1-dashboard-principal: backlog
+  3-2-creer-une-partie-domino: backlog
+  3-3-rejoindre-partie-publique-fusion-30s: backlog
+  3-4-rejoindre-partie-privee-annulation: backlog
+  epic-3-retrospective: optional
+  epic-4: backlog
+  4-1-moteur-domino-server-authoritative-rng: backlog
+  4-2-plateau-domino-ui-tour-notifications: backlog
+  4-3-resultat-commission-12-credit-wallet: backlog
+  4-4-reconnexion-apres-coupure-timeout-abandon: backlog
+  4-5-signalement-joueur-suspect: backlog
+  4-6-logs-de-replay-administrateur: backlog
+  epic-4-retrospective: optional
+  epic-5: backlog
+  5-1-ecran-profil-statistiques: backlog
+  5-2-parametres-notifications-limites-securite: backlog
+  5-3-historique-des-parties-filtres: backlog
+  epic-5-retrospective: optional
+  epic-6: backlog
+  6-1-docker-compose-backend-redis: backlog
+  6-2-github-actions-ci-lint-test-build-backend: backlog
+  6-3-build-apk-automatise: backlog
+  epic-6-retrospective: optional

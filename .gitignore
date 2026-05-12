@@ -1,0 +1,20 @@
+node_modules/
+dist/
+.env
+*.log
+.DS_Store
+
+# Flutter build artifacts
+packages/frontend/build/
+packages/frontend/.dart_tool/
+packages/frontend/.flutter-plugins
+packages/frontend/.flutter-plugins-dependencies
+packages/frontend/.packages
+packages/frontend/.pub-cache/
+packages/frontend/pubspec.lock
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
