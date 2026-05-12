@@ -1,0 +1,224 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String   @id @default(uuid())
+  phone        String   @unique @db.VarChar(20)
+  nickname     String?  @db.VarChar(50)
+  avatarUrl    String?
+  kycStatus    KycStatus @default(pending) @map("kyc_status")
+  kycDocUrl    Json?    @map("kyc_doc_url")
+  passwordHash String   @map("password_hash")
+  isActive     Boolean  @default(true) @map("is_active")
+  limits       Json?
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  sessions       Session[]
+  wallet         Wallet?
+  transactions   Transaction[]
+  kycDocuments   KycDocument[]
+  gamePlayers    GamePlayer[]
+  gameEvents     GameEvent[]
+  gamesWon       Game[]            @relation("Winner")
+  gamesHosted    Game[]            @relation("Host")
+
+  @@map("users")
+}
+
+model Session {
+  id        String   @id @default(uuid())
+  userId    String   @map("user_id")
+  tokenHash String   @map("token_hash")
+  deviceInfo Json?   @map("device_info")
+  createdAt DateTime @default(now()) @map("created_at")
+  expiresAt DateTime @map("expires_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([expiresAt], map: "idx_sessions_expires")
+  @@map("sessions")
+}
+
+model Wallet {
+  id        String   @id @default(uuid())
+  userId    String   @unique @map("user_id")
+  balance   Int      @default(0)
+  version   Int      @default(1)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("wallets")
+}
+
+model Transaction {
+  id            String           @id @default(uuid())
+  userId        String           @map("user_id")
+  type          TransactionType
+  amount        Int
+  currency      String           @default("Ar")
+  status        TransactionStatus @default(pending)
+  correlationId String           @unique @map("correlation_id")
+  providerRef   String?          @map("provider_ref")
+  metadata      Json?
+  createdAt     DateTime         @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId], map: "idx_transactions_user_id")
+  @@index([correlationId], map: "idx_transactions_correlation")
+  @@index([status], map: "idx_transactions_status")
+  @@map("transactions")
+}
+
+model KycDocument {
+  id              String   @id @default(uuid())
+  userId          String   @map("user_id")
+  docType         KycDocType @map("doc_type")
+  filePath        String   @map("file_path")
+  status          KycStatus @default(pending)
+  rejectionReason String?  @map("rejection_reason")
+  verifiedAt      DateTime? @map("verified_at")
+  createdAt       DateTime @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("kyc_documents")
+}
+
+model Game {
+  id            String     @id @default(uuid())
+  type          GameType   @default(domino)
+  mode          GameMode
+  stake         Int
+  status        GameStatus @default(waiting)
+  commissionRate Int       @default(12) @map("commission_rate")
+  targetScore   Int        @default(100) @map("target_score")
+  rngSeed       String?    @map("rng_seed")
+  hostId        String?    @map("host_id")
+  winnerId      String?    @map("winner_id")
+  totalPool     Int?       @map("total_pool")
+  startedAt     DateTime?  @map("started_at")
+  finishedAt    DateTime?  @map("finished_at")
+  createdAt     DateTime   @default(now()) @map("created_at")
+
+  host    User?        @relation("Host", fields: [hostId], references: [id])
+  winner  User?        @relation("Winner", fields: [winnerId], references: [id])
+  players GamePlayer[]
+  events  GameEvent[]
+  snapshot GameSnapshot?
+
+  @@index([status], map: "idx_games_status")
+  @@map("games")
+}
+
+model GamePlayer {
+  id         String       @id @default(uuid())
+  gameId     String       @map("game_id")
+  userId     String       @map("user_id")
+  team       Int          @default(1)
+  seatNumber Int          @map("seat_number")
+  status     PlayerStatus @default(joined)
+  finalScore Int?         @map("final_score")
+  joinedAt   DateTime     @default(now()) @map("joined_at")
+
+  game Game @relation(fields: [gameId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([gameId], map: "idx_game_players_game")
+  @@map("game_players")
+}
+
+model GameEvent {
+  id        BigInt   @id @default(autoincrement())
+  gameId    String   @map("game_id")
+  eventType String   @map("event_type")
+  playerId  String?  @map("player_id")
+  payload   Json?
+  createdAt DateTime @default(now()) @map("created_at")
+
+  game Game @relation(fields: [gameId], references: [id], onDelete: Cascade)
+  user User? @relation(fields: [playerId], references: [id])
+
+  @@index([gameId], map: "idx_game_events_game")
+  @@index([createdAt], map: "idx_game_events_created")
+  @@map("game_events")
+}
+
+model GameSnapshot {
+  gameId    String   @id @map("game_id")
+  state     Json?
+  version   Int      @default(1)
+  createdAt DateTime @default(now()) @map("created_at")
+
+  game Game @relation(fields: [gameId], references: [id], onDelete: Cascade)
+
+  @@map("game_snapshots")
+}
+
+model IdempotencyKey {
+  key       String   @id @map("key")
+  response  Json?
+  expiresAt DateTime @map("expires_at")
+
+  @@index([key], map: "idx_idempotency_key")
+  @@map("idempotency_keys")
+}
+
+enum KycStatus {
+  pending
+  verified
+  rejected
+}
+
+enum KycDocType {
+  cin
+  permis
+}
+
+enum TransactionType {
+  deposit
+  withdrawal
+  game_buy_in
+  game_win
+  commission
+  refund
+}
+
+enum TransactionStatus {
+  pending
+  success
+  failed
+  refunded
+}
+
+enum GameType {
+  domino
+}
+
+enum GameMode {
+  one_v_one @map("1v1")
+  four_p    @map("4p")
+}
+
+enum GameStatus {
+  waiting
+  playing
+  finished
+  cancelled
+}
+
+enum PlayerStatus {
+  joined
+  playing
+  afk
+  abandoned
+}
